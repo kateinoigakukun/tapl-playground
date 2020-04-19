@@ -69,7 +69,7 @@ public func const<A, B>(_ a: A) -> (B) -> A {
 }
 
 @inline(__always)
-public func void<A>(_: A) -> Void {}
+public func void<A>(_: A) {}
 
 @inline(__always)
 public func cons<E>(_ x: E) -> ([E]) -> [E] {
@@ -292,7 +292,7 @@ public func token<Phase>(_ string: String, file: StaticString = #file, function:
 
 enum EofError: Error { case noMatch }
 
-public func lexEof<Phase>() -> Parser<Phase ,Void> {
+public func lexEof<Phase>() -> Parser<Phase, Void> {
     return Parser { input in
         if input.collection.endIndex == input.startIndex {
             return ((), input)
@@ -306,5 +306,28 @@ public func withOffset<Phase, T>(_ p: Parser<Phase, T>) -> Parser<Phase, (T, Pha
     return Parser { input in
         let (v, newInput) = try p.parse(input)
         return ((v, input.startIndex), newInput)
+    }
+}
+
+enum MatchError: Error {
+    case notMatch
+}
+
+public func consumeMap<Phase, U>(_ f: @escaping (Phase.Collection.Element) -> U?) -> Parser<Phase, U> {
+    Parser { input in
+        let head = input.collection[input.startIndex]
+        guard let result = f(head) else {
+            throw MatchError.notMatch
+        }
+        let newIndex = input.collection.index(after: input.startIndex)
+        let newInput = Parser<Phase, U>.Input(previous: input, newIndex: newIndex)
+        return (result, newInput)
+    }
+}
+
+public func debugPrint<Phase>(_ message: String, file: StaticString = #file, line: Int = #line) -> Parser<Phase, Void> {
+    return Parser { input in
+        print("[\(message) \(file.description.split(separator: "/").last!):\(line)] \(input.cursor)")
+        return ((), input)
     }
 }

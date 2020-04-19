@@ -21,7 +21,7 @@ final class Chapter3Tests: XCTestCase {
                 case .succ(.if(.true, .true, .false, _), _): return
                 default: XCTFail()
                 }
-            },
+            }
         ]
         for (input, expect) in inputs {
             let tokens = try lex(input)
@@ -48,7 +48,7 @@ final class Chapter3Tests: XCTestCase {
                 case .succ(.true, _): return
                 default: XCTFail()
                 }
-            },
+            }
         ]
         for (input, expect) in inputs {
             let tokens = try lex(input)

@@ -25,7 +25,7 @@ let tokenKeywordMap: [String: Token] = [
     "pred": .pred,
     "iszero": .iszero,
     "(": .leftParen,
-    ")": .rightParen,
+    ")": .rightParen
 ]
 
 func lex(_ text: String) throws -> [(Token, String.Index)] {
@@ -70,11 +70,11 @@ indirect enum Term {
 extension Term: CustomStringConvertible {
     var description: String {
         switch self {
-        case .true(_): return "true"
-        case .false(_): return "false"
+        case .true: return "true"
+        case .false: return "false"
         case let .if(t1, t2, t3, _):
             return "if \(t1) then \(t2) else \(t3)"
-        case .zero(_): return "0"
+        case .zero: return "0"
         case let .succ(t1, _):
             return "succ(\(t1))"
         case let .pred(t1, _):
@@ -128,7 +128,7 @@ func parseTerm2() -> TermParser<(TermInfo) -> Term> {
         curry(Term.iszero) <^> (matchToken(.iszero) *>
             matchToken(.leftParen) *>
             parseTerm1()
-            <* matchToken(.rightParen)),
+            <* matchToken(.rightParen))
     ])
 }
 
@@ -146,7 +146,7 @@ indirect enum Number {
 
 func isNumericValue(_ term: Term) -> Bool {
     switch term {
-    case .zero(_): return true
+    case .zero: return true
     case .succ(let t1, _): return isNumericValue(t1)
     default: return false
     }
@@ -154,7 +154,7 @@ func isNumericValue(_ term: Term) -> Bool {
 
 func isValue(_ term: Term) -> Bool {
     switch term {
-    case .true(_), .false(_): return true
+    case .true, .false: return true
     case _ where isNumericValue(term): return true
     default:
         return false
@@ -167,21 +167,21 @@ enum EvalError: Swift.Error {
 
 func eval1(_ term: Term) throws -> Term {
     switch term {
-    case let .if(.true(_), t2, _, _):
+    case let .if(.true, t2, _, _):
         return t2
-    case let .if(.false(_), _, t3, _):
+    case let .if(.false, _, t3, _):
         return t3
     case let .if(t1, t2, t3, info):
         return try .if(eval1(t1), t2, t3, info)
     case let .succ(t1, info):
         return try .succ(eval1(t1), info)
-    case .pred(.zero(_), _):
+    case .pred(.zero, _):
         return .zero(.dummy())
     case let .pred(.succ(nv1, _), _) where isNumericValue(nv1):
         return nv1
     case let .pred(t1, info):
         return try .pred(eval1(t1), info)
-    case .iszero(.zero(_), _):
+    case .iszero(.zero, _):
         return .true(.dummy())
     case let .iszero(.succ(nv1, _), _) where isNumericValue(nv1):
         return .false(.dummy())
