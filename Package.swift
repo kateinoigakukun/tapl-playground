@@ -18,6 +18,8 @@ let package = Package(
         .testTarget(name: "Chapter3Tests", dependencies: ["Chapter3"]),
         .target(name: "Chapter5", dependencies: ["TaPLPlayground"]),
         .testTarget(name: "Chapter5Tests", dependencies: ["Chapter5"]),
+        .target(name: "Chapter8", dependencies: ["TaPLPlayground"]),
+        .testTarget(name: "Chapter8Tests", dependencies: ["Chapter8"]),
         .target(
             name: "TaPLPlayground",
             dependencies: [
